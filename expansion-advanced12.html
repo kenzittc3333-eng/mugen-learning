@@ -29,8 +29,8 @@ button:focus-visible,.card:focus-visible{outline:3px solid #3178db;outline-offse
 .center{width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:21px;z-index:2;position:relative}
 .prompt{font-size:clamp(17px,4.6vw,29px);font-weight:900;color:#934600;text-align:center}
 .formulas{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;width:100%}
-.formula{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:clamp(28px,6.4vw,62px);line-height:1.35;text-align:center;white-space:nowrap;letter-spacing:-.035em;max-width:100%}
-.formula.long{font-size:clamp(21px,4.5vw,43px)}
+.formula{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:96px;line-height:1.22;text-align:center;white-space:nowrap;letter-spacing:-.035em;display:inline-block;width:max-content;max-width:none}
+.formula.long{font-size:inherit}
 .formula i{font-family:inherit;font-style:italic}
 .formula sup{font-size:.61em;vertical-align:super;line-height:0}
 .answer .formula{color:#d13415}
@@ -49,7 +49,7 @@ footer{text-align:center;color:#9c510e;font-size:13px;font-weight:800;margin-top
 header{padding:7px}.head{min-height:122px}.head img{width:90px;height:120px;left:-4px}.title{padding-left:88px}.brand{font-size:10px;padding:6px 7px}h1{font-size:clamp(22px,6.3vw,32px)}
 main{padding:12px 7px 27px}.controls{gap:5px}.controls button{font-size:12px;min-height:45px;border-radius:12px}
 .card{min-height:440px;padding:76px 7px 104px}.number{font-size:16px;left:10px;padding:10px 14px}.side{font-size:16px;padding:7px 17px;top:15px;right:10px}
-.center{gap:25px}.prompt{font-size:clamp(16px,4.4vw,21px)}.formula{font-size:clamp(26px,7.2vw,38px)}.formula.long{font-size:clamp(19px,5.1vw,27px)}.mas img{width:75px;height:90px}.hint{max-width:calc(100% - 130px)}
+.center{gap:25px}.prompt{font-size:clamp(16px,4.4vw,21px)}.formula{font-size:96px}.formula.long{font-size:inherit}.mas img{width:75px;height:90px}.hint{max-width:calc(100% - 130px)}
 }
 @media(max-width:360px){.formula.long{font-size:18px}.mas img{width:63px;height:78px}.hint{max-width:calc(100% - 110px)}}
 </style>
@@ -86,9 +86,9 @@ const origin=[
 {q:["(−x+1)(−x−3)"],a:["x²+2x−3"]},
 {q:["(x+y+6)(x+y−6)"],a:["x²+2xy+y²−36"]},
 {q:["(x−3y+2)(x−3y−2)"],a:["x²−6xy+9y²−4"]},
-{q:["(3x−2y−1)(3x−2y−5)"],a:["9x²−12xy+4y²","−18x+12y+5"]},
-{q:["(x+y+1)²"],a:["x²+2xy+y²"," +2x+2y+1"]},
-{q:["(2x−y−3)²"],a:["4x²−4xy+y²","−12x+6y+9"]},
+{q:["(3x−2y−1)(3x−2y−5)"],a:["9x²−12xy+4y²−18x+12y+5"]},
+{q:["(x+y+1)²"],a:["x²+2xy+y²+2x+2y+1"]},
+{q:["(2x−y−3)²"],a:["4x²−4xy+y²−12x+6y+9"]},
 {q:["(x+y+3)(x+y−3)"],a:["x²+2xy+y²−9"]},
 {q:["(x+y+6)(x−y+6)"],a:["x²−y²+12x+36"]},
 {q:["(x+y+5)(x−y−5)"],a:["x²−y²−10y−25"]}
@@ -109,10 +109,30 @@ el('side').textContent=back?'裏':'表';
 el('prompt').textContent=back?'答え':(c.calc?'※次の式を計算しなさい※':'※次の式を展開しなさい※');
 el('formulas').replaceChildren();
 lines.forEach(s=>{const d=document.createElement('div');d.className='formula'+(s.length>21?' long':'');d.innerHTML=fmt(s);el('formulas').append(d);});
+fitToOneLine();
 el('progressText').textContent=(index+1)+' / '+cards.length;
 el('fill').style.width=((index+1)/cards.length*100)+'%';
 el('card').setAttribute('aria-label','問題'+c.no+(back?'の解答':'')+'。タップして表裏を切り替える');
 }
+// 数式と指示文を画面幅の範囲でできる限り大きくし、常に1行に収める。
+function fitToOneLine(){
+ const available=Math.max(120,el('formulas').clientWidth-10);
+ const base=window.innerWidth<=600?92:116;
+ el('formulas').querySelectorAll('.formula').forEach(node=>{
+   node.style.fontSize=base+'px';
+   const actual=node.getBoundingClientRect().width;
+   const size=Math.min(base,base*available/Math.max(1,actual))*0.98;
+   node.style.fontSize=size.toFixed(2)+'px';
+ });
+ const prompt=el('prompt');
+ const maxSize=window.innerWidth<=600?27:35;
+ prompt.style.whiteSpace='nowrap';
+ prompt.style.fontSize=maxSize+'px';
+ const measured=prompt.scrollWidth;
+ const pWidth=Math.max(140,el('card').clientWidth-34);
+ prompt.style.fontSize=(Math.min(maxSize,maxSize*pWidth/Math.max(1,measured))*0.98).toFixed(2)+'px';
+}
+window.addEventListener('resize',fitToOneLine);
 function flip(){back=!back;render()}
 function next(){index=(index+1)%cards.length;back=false;render()}
 function prev(){index=(index-1+cards.length)%cards.length;back=false;render()}
