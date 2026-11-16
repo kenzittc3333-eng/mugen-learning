@@ -48,6 +48,9 @@ select{font:inherit;max-width:100%;padding:8px;border:2px solid #bf641e;border-r
 @font-face{font-family:"MUGEN Math Italic";src:url("https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/fonts/KaTeX_Math-Italic.woff2") format("woff2");font-style:italic;font-weight:400;font-display:swap}
 .math-var{font-family:"MUGEN Math Italic","STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;font-weight:400}
 #answer .frac{font-size:.9em;white-space:nowrap;line-height:1.12}
+
+#problem{font-size:clamp(28.6px,7.28vw,46.8px);white-space:nowrap;overflow-wrap:normal}
+#problem-expression{display:inline-block}
 </style></head><body><main><header>
   <p class="brand">総合教育研究所　無限の可能性</p>
   <h1>中学2年　式の計算</h1>
@@ -59,7 +62,7 @@ select{font:inherit;max-width:100%;padding:8px;border:2px solid #bf641e;border-r
   </div>
 </header>
 <div class="actions"><select id="unit" aria-label="単元"><option value="all">すべての単元</option></select><button id="shuffle" aria-pressed="false">シャッフル</button></div>
-<section class="card" id="card"><p class="progress" id="progress" aria-live="polite"></p><p class="prompt" id="prompt"></p><p class="math" id="problem"></p><button class="primary" id="show" aria-expanded="false" aria-controls="solution">途中式と答えを見る</button><div id="solution" hidden><p id="work"></p><p id="answer" class="math"></p></div></section>
+<section class="card" id="card"><p class="progress" id="progress" aria-live="polite"></p><p class="prompt" id="prompt"></p><p class="math" id="problem"><span id="problem-expression"></span></p><button class="primary" id="show" aria-expanded="false" aria-controls="solution">途中式と答えを見る</button><div id="solution" hidden><p id="work"></p><p id="answer" class="math"></p></div></section>
 <nav aria-label="問題の移動"><button id="prev">← 前へ</button><button id="reset">最初から</button><button id="next">次へ →</button></nav>
 <p class="hint">スワイプで問題を移動</p>
 </main><script>
@@ -101,10 +104,23 @@ function setNotation(target,value){
   }
   target.append(block);
 }
+function fitProblem(){
+  const box=el('problem');
+  const expression=el('problem-expression');
+  expression.style.fontSize='';
+  const available=box.clientWidth;
+  const natural=expression.getBoundingClientRect().width;
+  if(available>0&&natural>available){
+    const base=parseFloat(getComputedStyle(box).fontSize);
+    expression.style.fontSize=(base*(available-1)/natural)+'px';
+  }
+}
 function render(){
   const q=deck[index];
   el('progress').textContent='第'+q.no+'問 ｜ '+(index+1)+'／'+deck.length+'問';
-  for(const key of ['prompt','problem','work','answer'])setNotation(el(key),q[key]);
+  for(const key of ['prompt','work','answer'])setNotation(el(key),q[key]);
+  setNotation(el('problem-expression'),q.problem);
+  fitProblem();
   el('prev').disabled=index===0;
   el('next').disabled=index===deck.length-1;
   reveal(false);
@@ -145,4 +161,6 @@ el('card').addEventListener('touchend',e=>{
   if(Math.abs(dx)>45&&Math.abs(dx)>1.5*Math.abs(dy)){e.preventDefault();move(dx<0?1:-1);}
 },{passive:false});
 render();
+window.addEventListener('resize',fitProblem);
+document.fonts?.ready.then(fitProblem);
 </script></body></html>
