@@ -47,7 +47,7 @@ body{background:linear-gradient(160deg,#ffb264,#f4892d)}
 select{font:inherit;max-width:100%;padding:8px;border:2px solid #bf641e;border-radius:10px;background:#fff9ee;color:#482910}
 @font-face{font-family:"MUGEN Math Italic";src:url("https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/fonts/KaTeX_Math-Italic.woff2") format("woff2");font-style:italic;font-weight:400;font-display:swap}
 .math-var{font-family:"MUGEN Math Italic","STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;font-weight:400}
-#answer .frac{font-size:.9em;white-space:nowrap;line-height:1.12}
+#answer .frac{font-size:1em;white-space:nowrap;line-height:1.12}
 
 #problem{font-size:clamp(28.6px,7.28vw,46.8px);white-space:nowrap;overflow-wrap:normal}
 #problem-expression{display:inline-block}
@@ -110,10 +110,10 @@ function fitProblem(){
   expression.style.fontSize='';
   const available=box.clientWidth;
   const natural=expression.getBoundingClientRect().width;
-  if(available>0&&natural>available){
-    const base=parseFloat(getComputedStyle(box).fontSize);
-    expression.style.fontSize=(base*(available-1)/natural)+'px';
-  }
+  const base=parseFloat(getComputedStyle(box).fontSize);
+  const size=available>1&&natural>available ? base*(available-1)/natural : base;
+  expression.style.fontSize=size+'px';
+  el('answer').style.fontSize=expression.style.fontSize;
 }
 function render(){
   const q=deck[index];
