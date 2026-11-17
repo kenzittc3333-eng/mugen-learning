@@ -49,7 +49,8 @@ select{font:inherit;max-width:100%;padding:8px;border:2px solid #bf641e;border-r
 .math-var{font-family:"MUGEN Math Italic","STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;font-weight:400}
 #answer .frac{font-size:1em;white-space:nowrap;line-height:1.12}
 
-#problem{font-size:clamp(28.6px,7.28vw,46.8px);white-space:nowrap;overflow-wrap:normal}
+#problem,#answer{font-size:clamp(28.6px,7.28vw,46.8px)}
+#problem{white-space:nowrap;overflow-wrap:normal}
 #problem-expression{display:inline-block}
 </style></head><body><main><header>
   <p class="brand">総合教育研究所　無限の可能性</p>
@@ -113,7 +114,6 @@ function fitProblem(){
   const base=parseFloat(getComputedStyle(box).fontSize);
   const size=available>1&&natural>available ? base*(available-1)/natural : base;
   expression.style.fontSize=size+'px';
-  el('answer').style.fontSize=expression.style.fontSize;
 }
 function render(){
   const q=deck[index];
